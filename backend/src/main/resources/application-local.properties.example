@@ -1,0 +1,10 @@
+spring.datasource.url=jdbc:postgresql://localhost:5432/yourdbname
+spring.datasource.username=yourusername
+spring.datasource.password=yourpassword
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+server.port=8080
+logging.level.root=INFO
+
+jwt.secret=yourbase64secretkey
