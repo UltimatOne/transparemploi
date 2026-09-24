@@ -1,9 +1,10 @@
 package com.transparemploi.backend.security;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.transparemploi.backend.model.User;
 import com.transparemploi.backend.repository.UserRepository;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,10 +38,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         System.out.println("🔵 FILTER → URI = " + path);
 
-        // 🔥 IGNORER les endpoints publics
+        // IGNORER les endpoints publics
         if (path.startsWith("/api/auth/")) {
             System.out.println("🟢 FILTER → Ignored for public endpoint");
-            SecurityContextHolder.clearContext(); // IMPORTANT
+            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
@@ -47,10 +49,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         System.out.println("🔵 FILTER → Authorization header = " + authHeader);
 
-        // 🔥 Pas de token → laisser passer mais vider le contexte
+        // Pas de token → laisser passer mais vider le contexte
         if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
             System.out.println("🟡 FILTER → No Bearer token, letting request pass");
-            SecurityContextHolder.clearContext(); // 🔥 CRITIQUE
+            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
@@ -60,29 +62,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (!jwtService.isTokenValid(token)) {
             System.out.println("🔴 FILTER → Token INVALID");
-            SecurityContextHolder.clearContext(); // 🔥 CRITIQUE
+            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
 
-        String email = jwtService.extractEmail(token);
+        // ---------------------------
+        // EXTRACTION CLAIMS
+        // ---------------------------
+        Claims claims = jwtService.extractAllClaims(token);
+
+        String email = claims.getSubject();
+        String role = claims.get("role", String.class);
+
         System.out.println("🔵 FILTER → Extracted email = " + email);
+        System.out.println("🔵 FILTER → Extracted role = " + role);
 
         User user = userRepository.findByEmail(email).orElse(null);
         System.out.println("🔵 FILTER → User found = " + user);
 
         if (user == null) {
             System.out.println("🔴 FILTER → User not found in DB");
-            SecurityContextHolder.clearContext(); // 🔥 CRITIQUE
+            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
 
-        UsernamePasswordAuthenticationToken authentication
-                = new UsernamePasswordAuthenticationToken(
+        // ---------------------------
+        // CRÉATION DES AUTORITÉS
+        // ---------------------------
+        SimpleGrantedAuthority authority =
+                new SimpleGrantedAuthority("ROLE_" + role);
+
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
                         user,
                         null,
-                        Collections.emptyList() // CRITIQUE : ne jamais mettre null ici
+                        List.of(authority) // CRITIQUE : authorities obligatoires
                 );
 
         authentication.setDetails(

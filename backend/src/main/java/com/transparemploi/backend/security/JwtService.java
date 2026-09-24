@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.transparemploi.backend.model.User;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -23,44 +24,80 @@ public class JwtService {
 
     private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24h
 
+    // ---------------------------
+    // SIGNING KEY
+    // ---------------------------
     private Key getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
+    // ---------------------------
+    // GENERATE TOKEN (User)
+    // ---------------------------
     public String generateToken(User user) {
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", user.getRole()); // ajout du rôle dans le JWT
+        claims.put("role", user.getRole());
 
         Date now = new Date();
         Date expiry = new Date(now.getTime() + EXPIRATION_MS);
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(user.getEmail()) // email = identité principale
+                .setSubject(user.getEmail())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
+    // ---------------------------
+    // GENERATE TOKEN (email)
+    // ---------------------------
+    public String generateToken(String email) {
+
+        Map<String, Object> claims = new HashMap<>();
+        // rôle inconnu → on ne met rien
+        // (RefreshTokenController n’a pas besoin du rôle)
+
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + EXPIRATION_MS);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    // ---------------------------
+    // EXTRACT EMAIL
+    // ---------------------------
     public String extractEmail(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    // ---------------------------
+    // EXTRACT ALL CLAIMS
+    // ---------------------------
+    public Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
     }
 
+    // ---------------------------
+    // VALIDATE TOKEN
+    // ---------------------------
     public boolean isTokenValid(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token);
-            return true;
+            Claims claims = extractAllClaims(token);
+            return claims.getExpiration().after(new Date());
         } catch (Exception e) {
             System.out.println("JWT ERROR → " + e.getMessage());
             return false;
