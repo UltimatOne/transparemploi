@@ -2,18 +2,20 @@ package com.transparemploi.backend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity // permet @PreAuthorize
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -22,21 +24,31 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // ENTRY POINT : renvoie 401 au lieu de 403
-                .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((req, res, e) -> {
-                    System.out.println("🔥 ENTRY POINT TRIGGERED");
-                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-                })
-                )
-                .authorizeHttpRequests(auth -> auth
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+            .authorizeHttpRequests(auth -> auth
+
+                // ---------------------------
+                // PUBLIC ROUTES
+                // ---------------------------
                 .requestMatchers("/api/auth/**").permitAll()
+
+                // ---------------------------
+                // ADMIN ROUTES
+                // ---------------------------
+                .requestMatchers(HttpMethod.PUT, "/api/users/*/role").hasRole("ADMIN")
+
+                // ---------------------------
+                // PROTECTED ROUTES
+                // ---------------------------
                 .anyRequest().authenticated()
-                )
-                // IMPORTANT : placer le filtre AVANT AnonymousAuthenticationFilter
-                .addFilterBefore(jwtAuthenticationFilter, AnonymousAuthenticationFilter.class);
+            )
+
+            // ---------------------------
+            // JWT FILTER
+            // ---------------------------
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

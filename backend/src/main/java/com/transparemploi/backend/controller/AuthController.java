@@ -30,7 +30,7 @@ public class AuthController {
 
         User created = authService.register(request);
 
-        String token = jwtService.generateToken(created.getEmail());
+        String token = jwtService.generateToken(created);
 
         UserResponse userResponse = new UserResponse();
         userResponse.setId(created.getId());
@@ -45,7 +45,7 @@ public class AuthController {
 
         User logged = authService.login(request);
 
-        String token = jwtService.generateToken(logged.getEmail());
+        String token = jwtService.generateToken(logged);
 
         UserResponse userResponse = new UserResponse();
         userResponse.setId(logged.getId());

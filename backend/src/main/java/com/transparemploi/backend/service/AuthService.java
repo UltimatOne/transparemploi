@@ -29,7 +29,7 @@ public class AuthService {
         User user = User.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
+                .role("USER") // rôle automatique
                 .build();
 
         return repository.save(user);

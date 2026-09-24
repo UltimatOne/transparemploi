@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.transparemploi.backend.dto.JobOfferRequest;
 import com.transparemploi.backend.dto.JobOfferResponse;
+import com.transparemploi.backend.mapper.JobOfferMapper;
 import com.transparemploi.backend.model.JobOffer;
 import com.transparemploi.backend.service.JobOfferService;
 
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class JobOfferController {
 
     private final JobOfferService jobOfferService;
+    private final JobOfferMapper jobOfferMapper;
 
     // ---------------------------
     // GET ALL
@@ -31,7 +33,7 @@ public class JobOfferController {
     public ResponseEntity<List<JobOfferResponse>> getAll() {
         List<JobOfferResponse> offers = jobOfferService.getAll()
                 .stream()
-                .map(this::toResponse)
+                .map(jobOfferMapper::toResponse)
                 .toList();
 
         return ResponseEntity.ok(offers);
@@ -53,7 +55,7 @@ public class JobOfferController {
 
         JobOffer created = jobOfferService.save(offer);
 
-        return ResponseEntity.ok(toResponse(created));
+        return ResponseEntity.ok(jobOfferMapper.toResponse(created));
     }
 
     // ---------------------------
@@ -63,23 +65,9 @@ public class JobOfferController {
     public ResponseEntity<List<JobOfferResponse>> getTransparent() {
         List<JobOfferResponse> offers = jobOfferService.getTransparentOffers()
                 .stream()
-                .map(this::toResponse)
+                .map(jobOfferMapper::toResponse)
                 .toList();
 
         return ResponseEntity.ok(offers);
-    }
-
-    // ---------------------------
-    // MAPPER
-    // ---------------------------
-    private JobOfferResponse toResponse(JobOffer offer) {
-        JobOfferResponse res = new JobOfferResponse();
-        res.setId(offer.getId());
-        res.setTitle(offer.getTitle());
-        res.setCompany(offer.getCompany());
-        res.setLocation(offer.getLocation());
-        res.setDescription(offer.getDescription());
-        res.setTransparent(offer.isTransparent());
-        return res;
     }
 }

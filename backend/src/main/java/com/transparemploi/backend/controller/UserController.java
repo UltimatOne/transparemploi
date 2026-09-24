@@ -3,6 +3,7 @@ package com.transparemploi.backend.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.transparemploi.backend.dto.RoleUpdateRequest;
 import com.transparemploi.backend.dto.UserResponse;
 import com.transparemploi.backend.dto.UserUpdateRequest;
+import com.transparemploi.backend.mapper.UserMapper;
 import com.transparemploi.backend.model.User;
 import com.transparemploi.backend.service.UserService;
 
@@ -25,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     // ---------------------------
     // GET ALL USERS
@@ -33,7 +37,7 @@ public class UserController {
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<UserResponse> users = userService.getAll()
                 .stream()
-                .map(this::toResponse)
+                .map(userMapper::toResponse)
                 .toList();
 
         return ResponseEntity.ok(users);
@@ -45,7 +49,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         User user = userService.findByIdOrThrow(id);
-        return ResponseEntity.ok(toResponse(user));
+        return ResponseEntity.ok(userMapper.toResponse(user));
     }
 
     // ---------------------------
@@ -57,7 +61,20 @@ public class UserController {
             @Valid @RequestBody UserUpdateRequest request
     ) {
         User updated = userService.update(id, request);
-        return ResponseEntity.ok(toResponse(updated));
+        return ResponseEntity.ok(userMapper.toResponse(updated));
+    }
+
+    // ---------------------------
+    // UPDATE USER ROLE (ADMIN ONLY)
+    // ---------------------------
+    @PutMapping("/{id}/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponse> updateRole(
+            @PathVariable Long id,
+            @Valid @RequestBody RoleUpdateRequest request
+    ) {
+        User updated = userService.updateRole(id, request.getRole());
+        return ResponseEntity.ok(userMapper.toResponse(updated));
     }
 
     // ---------------------------
@@ -66,17 +83,6 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<UserResponse> deleteUser(@PathVariable Long id) {
         User deleted = userService.delete(id);
-        return ResponseEntity.ok(toResponse(deleted));
-    }
-
-    // ---------------------------
-    // MAPPER
-    // ---------------------------
-    private UserResponse toResponse(User user) {
-        UserResponse res = new UserResponse();
-        res.setId(user.getId());
-        res.setEmail(user.getEmail());
-        res.setRole(user.getRole());
-        return res;
+        return ResponseEntity.ok(userMapper.toResponse(deleted));
     }
 }

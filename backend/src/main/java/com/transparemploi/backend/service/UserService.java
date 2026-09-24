@@ -49,8 +49,23 @@ public class UserService {
 
         // TODO : hash si tu veux permettre la modification du mot de passe
         // existing.setPassword(passwordEncoder.encode(request.getPassword()));
-
         return repository.save(existing);
+    }
+
+    // ---------------------------
+    // MODIFICATION DU RÔLE D'UN UTILISATEUR, ADMIN OU USER? SEUL UN ADMIN PEUT FAIRE ÇA
+    // ---------------------------
+    public User updateRole(Long id, String role) {
+
+        User user = findByIdOrThrow(id);
+
+        if (!role.equals("ADMIN") && !role.equals("USER")) {
+            throw new IllegalArgumentException("Rôle invalide");
+        }
+
+        user.setRole(role);
+
+        return repository.save(user);
     }
 
     // ---------------------------

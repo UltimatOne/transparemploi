@@ -16,6 +16,4 @@ public class RegisterRequest {
     @Size(min = 6, message = "Mot de passe trop court (min 6 caractères)")
     private String password;
 
-    @NotBlank(message = "Rôle obligatoire")
-    private String role;
 }
