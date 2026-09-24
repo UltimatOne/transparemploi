@@ -68,6 +68,11 @@ public class UserService {
         return repository.save(user);
     }
 
+    public User findByEmailOrThrow(String email) {
+        return repository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
+    }
+
     // ---------------------------
     // DELETE USER
     // ---------------------------

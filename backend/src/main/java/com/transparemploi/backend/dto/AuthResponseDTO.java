@@ -4,6 +4,8 @@ public class AuthResponseDTO {
 
     private String token;
     private String refreshToken;
+    private long refreshTokenExpiry;
+    private String role;
 
     public String getToken() {
         return token;
@@ -19,5 +21,21 @@ public class AuthResponseDTO {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public long getRefreshTokenExpiry() {
+        return refreshTokenExpiry;
+    }
+
+    public void setRefreshTokenExpiry(long refreshTokenExpiry) {
+        this.refreshTokenExpiry = refreshTokenExpiry;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

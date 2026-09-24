@@ -3,9 +3,9 @@ package com.transparemploi.backend.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.transparemploi.backend.dto.AuthResponseDTO;
 import com.transparemploi.backend.dto.LoginRequest;
 import com.transparemploi.backend.dto.RegisterRequest;
-import com.transparemploi.backend.dto.AuthResponseDTO;
 import com.transparemploi.backend.model.User;
 import com.transparemploi.backend.repository.UserRepository;
 import com.transparemploi.backend.security.JwtService;
@@ -93,6 +93,8 @@ public class AuthService {
         AuthResponseDTO response = new AuthResponseDTO();
         response.setToken(jwt);
         response.setRefreshToken(refreshToken.getToken());
+        response.setRefreshTokenExpiry(refreshToken.getExpiryDate().toEpochMilli());
+        response.setRole(user.getRole()); // <-- AJOUT DU RÔLE
 
         System.out.println("🟢 SERVICE → AuthResponseDTO ready, returning to controller");
 
