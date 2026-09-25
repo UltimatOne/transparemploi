@@ -10,10 +10,13 @@ export default function HomePage() {
   };
 
   return (
-    <HomeTemplate
-      searchValue={searchValue}
-      onSearchChange={(e) => setSearchValue(e.target.value)}
-      onSearch={handleSearch}
-    />
+    <>
+      <h1 className="text-4xl text-red-500">Tailwind 4 fonctionne !</h1>
+      <HomeTemplate
+        searchValue={searchValue}
+        onSearchChange={(e) => setSearchValue(e.target.value)}
+        onSearch={handleSearch}
+      />
+    </>
   );
 }
