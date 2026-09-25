@@ -39,7 +39,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("🔵 FILTER → URI = " + path);
 
         // IGNORER les endpoints publics
-        if (path.startsWith("/api/auth/")) {
+        if (path.equals("/api/auth/register")
+                || path.equals("/api/auth/login")
+                || path.equals("/api/auth/refresh")
+                || path.equals("/api/auth/logout")) {
             System.out.println("🟢 FILTER → Ignored for public endpoint");
             SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
@@ -91,11 +94,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // ---------------------------
         // CRÉATION DES AUTORITÉS
         // ---------------------------
-        SimpleGrantedAuthority authority =
-                new SimpleGrantedAuthority("ROLE_" + role);
+        SimpleGrantedAuthority authority
+                = new SimpleGrantedAuthority("ROLE_" + role);
 
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
+        UsernamePasswordAuthenticationToken authentication
+                = new UsernamePasswordAuthenticationToken(
                         user,
                         null,
                         List.of(authority) // CRITIQUE : authorities obligatoires

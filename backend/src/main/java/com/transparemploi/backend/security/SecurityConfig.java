@@ -24,31 +24,30 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-            .authorizeHttpRequests(auth -> auth
-
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
                 // ---------------------------
                 // PUBLIC ROUTES
                 // ---------------------------
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/register").permitAll()
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/auth/refresh").permitAll()
+                .requestMatchers("/api/auth/logout").permitAll()
 
                 // ---------------------------
                 // ADMIN ROUTES
                 // ---------------------------
                 .requestMatchers(HttpMethod.PUT, "/api/users/*/role").hasRole("ADMIN")
-
                 // ---------------------------
                 // PROTECTED ROUTES
                 // ---------------------------
                 .anyRequest().authenticated()
-            )
-
-            // ---------------------------
-            // JWT FILTER
-            // ---------------------------
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                )
+                // ---------------------------
+                // JWT FILTER
+                // ---------------------------
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.transparemploi.backend.dto.UserResponse;
 import com.transparemploi.backend.mapper.UserMapper;
+import com.transparemploi.backend.model.User;
 import com.transparemploi.backend.service.UserService;
 
 @RestController
@@ -23,7 +24,7 @@ public class MeController {
     @GetMapping("/api/auth/me")
     public ResponseEntity<UserResponse> me(Authentication authentication) {
 
-        String email = authentication.getName(); // extrait du JWT
+        String email = ((User) authentication.getPrincipal()).getEmail(); // extrait du JWT
 
         var user = userService.findByEmailOrThrow(email);
 
