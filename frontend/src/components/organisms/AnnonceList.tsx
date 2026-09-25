@@ -1,31 +1,32 @@
 import { useEffect, useState } from "react";
-import { getAnnonces } from "../../services/api";
-import type { Annonce } from "../../types/annonce";
-import AnnonceCard from "../molecules/AnnonceCard";
+import type { JobOfferResponse } from "../../types/JobOffer";
+import { OffersAPI } from "../../services/api";
+import OfferCard from "../molecules/AnnonceCard";
 
-export default function AnnonceList() {
-    const [annonces, setAnnonces] = useState<Annonce[]>([]);
+
+export default function OfferList() {
+    const [offers, setOffers] = useState<JobOfferResponse[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        getAnnonces().then((data) => {
-            setAnnonces(data);
+        OffersAPI.getAll().then((data) => {
+            setOffers(data);
             setLoading(false);
         });
     }, []);
 
     if (loading) {
-        return <p className="text-center py-10">Chargement des annonces...</p>;
+        return <p className="text-center py-10">Chargement des offres...</p>;
     }
 
-    if (annonces.length === 0) {
-        return <p className="text-center py-10">Aucune annonce trouvée.</p>;
+    if (offers.length === 0) {
+        return <p className="text-center py-10">Aucune offre trouvée.</p>;
     }
 
     return (
         <div className="grid gap-4">
-            {annonces.map((annonce) => (
-                <AnnonceCard key={annonce.id} annonce={annonce} />
+            {offers.map((offer) => (
+                <OfferCard key={offer.id} offer={offer} />
             ))}
         </div>
     );

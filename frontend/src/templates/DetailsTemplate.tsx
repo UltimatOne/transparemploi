@@ -1,24 +1,25 @@
-import type { Annonce } from "../types/annonce";
-import AnnonceCard from "../components/molecules/AnnonceCard";
+import OfferCard from "../components/molecules/AnnonceCard";
+import type { JobOfferResponse } from "../types/JobOffer";
+
 
 interface DetailsTemplateProps {
-    annonce: Annonce | null;
+    offer: JobOfferResponse | null;
 }
 
-export default function DetailsTemplate({ annonce }: DetailsTemplateProps) {
-    if (!annonce) {
+export default function OfferDetailsTemplate({ offer }: DetailsTemplateProps) {
+    if (!offer) {
         return (
             <p className="text-center py-10 text-gray-600">
-                Aucune annonce trouvée.
+                Aucune offre trouvée.
             </p>
         );
     }
 
     return (
         <div className="max-w-5xl mx-auto py-10 px-4">
-            <h1 className="text-2xl font-bold mb-6">Détails de l'annonce</h1>
+            <h1 className="text-2xl font-bold mb-6">Détails de l'offre</h1>
 
-            <AnnonceCard annonce={annonce} />
+            <OfferCard offer={offer} />
         </div>
     );
 }

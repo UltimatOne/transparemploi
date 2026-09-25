@@ -13,7 +13,7 @@ export default function Navbar() {
                         Accueil
                     </Link>
                     <Link to="/list" className="hover:underline">
-                        Annonces
+                        Offres
                     </Link>
                     <Link to="/report" className="hover:underline">
                         Signaler

@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DetailsTemplate from "../templates/DetailsTemplate";
-import { getAnnonceById } from "../services/api";
-import type { Annonce } from "../types/annonce";
+import { OffersAPI } from "../services/api";
+import type { JobOfferResponse } from "../types/JobOffer";
 
-export default function DetailsPage() {
+
+export default function OfferDetailsPage() {
     const { id } = useParams();
-    const [annonce, setAnnonce] = useState<Annonce | null>(null);
+    const [offer, setOffer] = useState<JobOfferResponse | null>(null);
 
     useEffect(() => {
-        if (id) {
-            getAnnonceById(id).then((data) => setAnnonce(data));
-        }
+        if (!id) return;
+
+        // TEMPORAIRE : en attendant GET /api/offers/{id}
+        OffersAPI.getAll().then((data) => {
+            const found = data.find((o) => o.id === Number(id));
+            setOffer(found || null);
+        });
     }, [id]);
 
-    return <DetailsTemplate annonce={annonce} />;
+    return <DetailsTemplate offer={offer} />;
 }
