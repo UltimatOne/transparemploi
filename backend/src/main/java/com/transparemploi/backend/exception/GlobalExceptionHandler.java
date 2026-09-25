@@ -40,6 +40,16 @@ public class GlobalExceptionHandler {
     }
 
     // ---------------------------
+    // ForbiddenException (403)
+    // ---------------------------
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorResponse> handleForbidden(ForbiddenException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    // ---------------------------
     // Generic errors (500)
     // ---------------------------
     @ExceptionHandler(Exception.class)

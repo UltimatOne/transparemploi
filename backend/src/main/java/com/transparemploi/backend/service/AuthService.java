@@ -78,7 +78,7 @@ public class AuthService {
         // ---------------------------
         // JWT
         // ---------------------------
-        String jwt = jwtService.generateToken(user.getEmail());
+        String jwt = jwtService.generateToken(user);
         System.out.println("🟢 SERVICE → JWT generated = " + jwt);
 
         // ---------------------------

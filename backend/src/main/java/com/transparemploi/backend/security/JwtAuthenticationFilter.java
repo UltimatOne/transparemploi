@@ -38,13 +38,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         System.out.println("🔵 FILTER → URI = " + path);
 
-        // IGNORER les endpoints publics
+        // ---------------------------
+        // ENDPOINTS PUBLICS → on ne touche pas au SecurityContext
+        // ---------------------------
         if (path.equals("/api/auth/register")
                 || path.equals("/api/auth/login")
-                || path.equals("/api/auth/refresh")
-                || path.equals("/api/auth/logout")) {
+                || path.equals("/api/auth/refresh")) {
             System.out.println("🟢 FILTER → Ignored for public endpoint");
-            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
@@ -52,10 +52,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         System.out.println("🔵 FILTER → Authorization header = " + authHeader);
 
-        // Pas de token → laisser passer mais vider le contexte
+        // ---------------------------
+        // PAS DE TOKEN → on laisse passer, sans vider le contexte
+        // ---------------------------
         if (!StringUtils.hasText(authHeader) || !authHeader.startsWith("Bearer ")) {
             System.out.println("🟡 FILTER → No Bearer token, letting request pass");
-            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
@@ -63,6 +64,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         System.out.println("🔵 FILTER → Token = " + token);
 
+        // ---------------------------
+        // TOKEN INVALIDE → on vide le contexte
+        // ---------------------------
         if (!jwtService.isTokenValid(token)) {
             System.out.println("🔴 FILTER → Token INVALID");
             SecurityContextHolder.clearContext();
@@ -84,9 +88,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         User user = userRepository.findByEmail(email).orElse(null);
         System.out.println("🔵 FILTER → User found = " + user);
 
+        // ---------------------------
+        // USER INTROUVABLE → on laisse passer, sans casser la chaîne
+        // ---------------------------
         if (user == null) {
             System.out.println("🔴 FILTER → User not found in DB");
-            SecurityContextHolder.clearContext();
             filterChain.doFilter(request, response);
             return;
         }
@@ -94,14 +100,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // ---------------------------
         // CRÉATION DES AUTORITÉS
         // ---------------------------
-        SimpleGrantedAuthority authority
-                = new SimpleGrantedAuthority("ROLE_" + role);
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
 
-        UsernamePasswordAuthenticationToken authentication
-                = new UsernamePasswordAuthenticationToken(
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
                         user,
                         null,
-                        List.of(authority) // CRITIQUE : authorities obligatoires
+                        List.of(authority)
                 );
 
         authentication.setDetails(

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.transparemploi.backend.model.RefreshToken;
 import com.transparemploi.backend.repository.RefreshTokenRepository;
@@ -17,6 +18,7 @@ public class RefreshTokenService {
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
+    @Transactional
     public RefreshToken createRefreshToken(String userEmail) {
 
         // Supprimer les anciens tokens de cet utilisateur

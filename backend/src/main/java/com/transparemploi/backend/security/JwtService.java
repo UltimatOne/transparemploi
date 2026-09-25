@@ -57,9 +57,8 @@ public class JwtService {
     // ---------------------------
     public String generateToken(String email) {
 
+        // Refresh token → pas de rôle
         Map<String, Object> claims = new HashMap<>();
-        // rôle inconnu → on ne met rien
-        // (RefreshTokenController n’a pas besoin du rôle)
 
         Date now = new Date();
         Date expiry = new Date(now.getTime() + EXPIRATION_MS);
