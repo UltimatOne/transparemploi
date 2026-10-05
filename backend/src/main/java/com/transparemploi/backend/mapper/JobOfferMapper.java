@@ -9,6 +9,10 @@ import com.transparemploi.backend.model.JobOffer;
 public class JobOfferMapper {
 
     public JobOfferResponse toResponse(JobOffer offer) {
+        if (offer == null) {
+            return null;
+        }
+
         JobOfferResponse res = new JobOfferResponse();
         res.setId(offer.getId());
         res.setTitle(offer.getTitle());

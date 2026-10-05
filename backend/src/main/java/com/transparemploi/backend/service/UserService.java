@@ -3,85 +3,126 @@ package com.transparemploi.backend.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.transparemploi.backend.dto.UserUpdateRequest;
 import com.transparemploi.backend.model.User;
 import com.transparemploi.backend.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository repository;
 
-    // ---------------------------
+    // ----------------------------------------------------
     // GET ALL USERS
-    // ---------------------------
+    // ----------------------------------------------------
     public List<User> getAll() {
+        log.info("📄 Fetching all users");
         return repository.findAll();
     }
 
-    // ---------------------------
+    // ----------------------------------------------------
     // FIND BY ID
-    // ---------------------------
+    // ----------------------------------------------------
     public User findByIdOrThrow(Long id) {
+        log.info("🔍 Searching user by ID: {}", id);
+
         return repository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
+                .orElseThrow(() -> {
+                    log.error("❌ User not found with ID: {}", id);
+                    return new IllegalArgumentException("Utilisateur introuvable");
+                });
     }
 
-    // ---------------------------
-    // UPDATE USER
-    // ---------------------------
+    // ----------------------------------------------------
+    // FIND BY EMAIL
+    // ----------------------------------------------------
+    public User findByEmailOrThrow(String email) {
+        log.info("🔍 Searching user by email: {}", email);
+
+        return repository.findByEmail(email)
+                .orElseThrow(() -> {
+                    log.error("❌ User not found with email: {}", email);
+                    return new IllegalArgumentException("Utilisateur introuvable");
+                });
+    }
+
+    // ----------------------------------------------------
+    // UPDATE USER (email + role)
+    // ----------------------------------------------------
+    @Transactional
     public User update(Long id, UserUpdateRequest request) {
+
+        log.info("✏️ Updating user {} with new email={} and role={}", 
+                 id, request.getEmail(), request.getRole());
 
         User existing = findByIdOrThrow(id);
 
         // Vérifie si un autre utilisateur utilise cet email
         if (!existing.getEmail().equals(request.getEmail())
                 && repository.existsByEmail(request.getEmail())) {
+
+            log.error("❌ Email {} already used by another user", request.getEmail());
             throw new IllegalArgumentException("Cet email est déjà utilisé par un autre utilisateur");
+        }
+
+        // Vérification du rôle (cohérence avec updateRole)
+        if (!request.getRole().equals("ADMIN") && !request.getRole().equals("USER")) {
+            log.error("❌ Invalid role provided: {}", request.getRole());
+            throw new IllegalArgumentException("Rôle invalide");
         }
 
         existing.setEmail(request.getEmail());
         existing.setRole(request.getRole());
 
-        // TODO : hash si tu veux permettre la modification du mot de passe
-        // existing.setPassword(passwordEncoder.encode(request.getPassword()));
-        return repository.save(existing);
+        User saved = repository.save(existing);
+
+        log.info("🟢 User {} updated successfully", saved.getId());
+        return saved;
     }
 
-    // ---------------------------
-    // MODIFICATION DU RÔLE D'UN UTILISATEUR, ADMIN OU USER? SEUL UN ADMIN PEUT FAIRE ÇA
-    // ---------------------------
+    // ----------------------------------------------------
+    // UPDATE ROLE ONLY
+    // ----------------------------------------------------
+    @Transactional
     public User updateRole(Long id, String role) {
+
+        log.info("🔧 Updating role for user {} → {}", id, role);
 
         User user = findByIdOrThrow(id);
 
         if (!role.equals("ADMIN") && !role.equals("USER")) {
+            log.error("❌ Invalid role provided: {}", role);
             throw new IllegalArgumentException("Rôle invalide");
         }
 
         user.setRole(role);
 
-        return repository.save(user);
+        User saved = repository.save(user);
+
+        log.info("🟢 Role updated successfully for user {}", saved.getId());
+        return saved;
     }
 
-    public User findByEmailOrThrow(String email) {
-        return repository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
-    }
-
-    // ---------------------------
+    // ----------------------------------------------------
     // DELETE USER
-    // ---------------------------
+    // ----------------------------------------------------
+    @Transactional
     public User delete(Long id) {
+
+        log.info("🗑️ Deleting user {}", id);
 
         User existing = findByIdOrThrow(id);
 
         repository.delete(existing);
 
+        log.info("🟢 User {} deleted successfully", id);
         return existing;
     }
 }

@@ -9,6 +9,10 @@ import com.transparemploi.backend.model.User;
 public class UserMapper {
 
     public UserResponse toResponse(User user) {
+        if (user == null) {
+            return null;
+        }
+
         UserResponse res = new UserResponse();
         res.setId(user.getId());
         res.setEmail(user.getEmail());

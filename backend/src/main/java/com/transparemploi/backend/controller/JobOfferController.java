@@ -17,20 +17,25 @@ import com.transparemploi.backend.service.JobOfferService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/offers")
 @RequiredArgsConstructor
+@Slf4j
 public class JobOfferController {
 
     private final JobOfferService jobOfferService;
     private final JobOfferMapper jobOfferMapper;
 
-    // ---------------------------
+    // ----------------------------------------------------
     // GET ALL
-    // ---------------------------
+    // ----------------------------------------------------
     @GetMapping
     public ResponseEntity<List<JobOfferResponse>> getAll() {
+
+        log.info("📄 Fetching all job offers");
+
         List<JobOfferResponse> offers = jobOfferService.getAll()
                 .stream()
                 .map(jobOfferMapper::toResponse)
@@ -39,11 +44,14 @@ public class JobOfferController {
         return ResponseEntity.ok(offers);
     }
 
-    // ---------------------------
+    // ----------------------------------------------------
     // CREATE
-    // ---------------------------
+    // ----------------------------------------------------
     @PostMapping
     public ResponseEntity<JobOfferResponse> create(@Valid @RequestBody JobOfferRequest request) {
+
+        log.info("✏️ Creating job offer: title={}, company={}, transparent={}",
+                request.getTitle(), request.getCompany(), request.isTransparent());
 
         JobOffer offer = JobOffer.builder()
                 .title(request.getTitle())
@@ -55,14 +63,19 @@ public class JobOfferController {
 
         JobOffer created = jobOfferService.save(offer);
 
+        log.info("🟢 Job offer created with ID={}", created.getId());
+
         return ResponseEntity.ok(jobOfferMapper.toResponse(created));
     }
 
-    // ---------------------------
+    // ----------------------------------------------------
     // GET TRANSPARENT OFFERS
-    // ---------------------------
+    // ----------------------------------------------------
     @GetMapping("/transparent")
     public ResponseEntity<List<JobOfferResponse>> getTransparent() {
+
+        log.info("🔍 Fetching transparent job offers");
+
         List<JobOfferResponse> offers = jobOfferService.getTransparentOffers()
                 .stream()
                 .map(jobOfferMapper::toResponse)

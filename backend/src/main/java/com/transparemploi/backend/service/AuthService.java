@@ -2,6 +2,7 @@ package com.transparemploi.backend.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.transparemploi.backend.dto.AuthResponseDTO;
 import com.transparemploi.backend.dto.LoginRequest;
@@ -25,6 +26,7 @@ public class AuthService {
     // ---------------------------
     // REGISTER
     // ---------------------------
+    @Transactional 
     public User register(RegisterRequest request) {
 
         System.out.println("🟠 SERVICE → register() called");
