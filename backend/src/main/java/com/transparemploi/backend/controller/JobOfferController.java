@@ -47,9 +47,6 @@ public class JobOfferController {
         return ResponseEntity.ok(offers);
     }
 
-<<<<<<< Updated upstream
-    // ----------------------------------------------------
-=======
     // ---------------------------
     // GET BY ID
     // ---------------------------
@@ -73,7 +70,6 @@ public class JobOfferController {
     }
 
     // ---------------------------
->>>>>>> Stashed changes
     // CREATE
     // ----------------------------------------------------
     @PostMapping
