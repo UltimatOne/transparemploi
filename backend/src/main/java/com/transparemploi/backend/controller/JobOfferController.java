@@ -4,13 +4,16 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.transparemploi.backend.dto.JobOfferRequest;
 import com.transparemploi.backend.dto.JobOfferResponse;
+import com.transparemploi.backend.dto.OfferReportRequest;
 import com.transparemploi.backend.mapper.JobOfferMapper;
 import com.transparemploi.backend.model.JobOffer;
 import com.transparemploi.backend.service.JobOfferService;
@@ -44,7 +47,33 @@ public class JobOfferController {
         return ResponseEntity.ok(offers);
     }
 
+<<<<<<< Updated upstream
     // ----------------------------------------------------
+=======
+    // ---------------------------
+    // GET BY ID
+    // ---------------------------
+    @GetMapping("/{id}")
+    public ResponseEntity<JobOfferResponse> getById(@PathVariable Long id) {
+        JobOffer offer = jobOfferService.findByIdOrThrow(id);
+        return ResponseEntity.ok(jobOfferMapper.toResponse(offer));
+    }
+
+    // ---------------------------
+    // SEARCH
+    // ---------------------------
+    @GetMapping("/search")
+    public ResponseEntity<List<JobOfferResponse>> search(@RequestParam String query) {
+        List<JobOfferResponse> offers = jobOfferService.search(query)
+                .stream()
+                .map(jobOfferMapper::toResponse)
+                .toList();
+
+        return ResponseEntity.ok(offers);
+    }
+
+    // ---------------------------
+>>>>>>> Stashed changes
     // CREATE
     // ----------------------------------------------------
     @PostMapping
@@ -82,5 +111,14 @@ public class JobOfferController {
                 .toList();
 
         return ResponseEntity.ok(offers);
+    }
+
+    // ---------------------------
+    // REPORT
+    // ---------------------------
+    @PostMapping("/report")
+    public ResponseEntity<Void> report(@Valid @RequestBody OfferReportRequest request) {
+        jobOfferService.report(request);
+        return ResponseEntity.ok().build();
     }
 }
