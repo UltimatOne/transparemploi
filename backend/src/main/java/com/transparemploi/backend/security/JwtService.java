@@ -22,7 +22,8 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24h
+    private static final long ACCESS_TOKEN_EXPIRATION_MS = 24 * 60 * 60 * 1000; // 24h
+    private static final long REFRESH_TOKEN_EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
 
     // ---------------------------
     // SIGNING KEY
@@ -33,7 +34,7 @@ public class JwtService {
     }
 
     // ---------------------------
-    // GENERATE TOKEN (User)
+    // GENERATE ACCESS TOKEN
     // ---------------------------
     public String generateToken(User user) {
 
@@ -41,7 +42,7 @@ public class JwtService {
         claims.put("role", user.getRole());
 
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + EXPIRATION_MS);
+        Date expiry = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION_MS);
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -53,19 +54,19 @@ public class JwtService {
     }
 
     // ---------------------------
-    // GENERATE TOKEN (email)
+    // GENERATE REFRESH TOKEN
     // ---------------------------
-    public String generateToken(String email) {
+    public String generateRefreshToken(User user) {
 
-        // Refresh token → pas de rôle
         Map<String, Object> claims = new HashMap<>();
+        // Pas de rôle dans le refresh token
 
         Date now = new Date();
-        Date expiry = new Date(now.getTime() + EXPIRATION_MS);
+        Date expiry = new Date(now.getTime() + REFRESH_TOKEN_EXPIRATION_MS);
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(email)
+                .setSubject(user.getEmail())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -91,7 +92,7 @@ public class JwtService {
     }
 
     // ---------------------------
-    // VALIDATE TOKEN
+    // VALIDATE ACCESS TOKEN
     // ---------------------------
     public boolean isTokenValid(String token) {
         try {
@@ -101,5 +102,25 @@ public class JwtService {
             System.out.println("JWT ERROR → " + e.getMessage());
             return false;
         }
+    }
+
+    // ---------------------------
+    // VALIDATE REFRESH TOKEN
+    // ---------------------------
+    public boolean isRefreshTokenValid(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            return claims.getExpiration().after(new Date());
+        } catch (Exception e) {
+            System.out.println("REFRESH JWT ERROR → " + e.getMessage());
+            return false;
+        }
+    }
+
+    // ---------------------------
+    // REFRESH TOKEN EXPIRY (SECONDS)
+    // ---------------------------
+    public long getRefreshTokenExpirySeconds() {
+        return REFRESH_TOKEN_EXPIRATION_MS / 1000;
     }
 }

@@ -7,6 +7,15 @@ public class AuthResponseDTO {
     private long refreshTokenExpiry;
     private String role;
 
+    public AuthResponseDTO() {}
+
+    public AuthResponseDTO(String token, String refreshToken, long refreshTokenExpiry, String role) {
+        this.token = token;
+        this.refreshToken = refreshToken;
+        this.refreshTokenExpiry = refreshTokenExpiry;
+        this.role = role;
+    }
+
     public String getToken() {
         return token;
     }

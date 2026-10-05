@@ -54,5 +54,4 @@ public class RefreshTokenService {
     public void deleteRefreshToken(String email) {
         refreshTokenRepository.deleteByUserEmail(email);
     }
-
 }
