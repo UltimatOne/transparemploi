@@ -1,5 +1,5 @@
 import ListTemplate from "../templates/ListTemplate";
 
-export default function ListPage() {
+export default function OfferListPage() {
     return <ListTemplate />;
 }

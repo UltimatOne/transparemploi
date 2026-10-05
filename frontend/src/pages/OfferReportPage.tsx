@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ReportTemplate from "../templates/ReportTemplate";
 
-export default function ReportPage() {
+export default function OffertReportPage() {
     const [url, setUrl] = useState("");
     const [commentaire, setCommentaire] = useState("");
 
