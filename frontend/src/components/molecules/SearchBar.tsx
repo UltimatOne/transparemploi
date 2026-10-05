@@ -15,7 +15,15 @@ export default function SearchBar({
     placeholder = "Rechercher...",
 }: SearchBarProps) {
     return (
-        <div className="flex gap-3">
+        <form
+            role="search"
+            aria-label="Recherche d'annonces"
+            className="flex flex-col sm:flex-row gap-3 w-full"
+            onSubmit={(e) => {
+                e.preventDefault();
+                onSearch();
+            }}
+        >
             <Input
                 value={value}
                 onChange={onChange}
@@ -23,9 +31,13 @@ export default function SearchBar({
                 className="flex-1"
             />
 
-            <Button onClick={onSearch} variant="primary">
+            <Button
+                type="submit"
+                variant="primary"
+                className="w-full sm:w-auto"
+            >
                 Rechercher
             </Button>
-        </div>
+        </form>
     );
 }

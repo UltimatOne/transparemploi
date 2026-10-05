@@ -69,6 +69,16 @@ export const OffersAPI = {
             method: "GET",
         }),
 
+    getById: (id: number): Promise<JobOfferResponse> =>
+        request(`${BASE_URL}/offers/${id}`, {
+            method: "GET",
+        }),
+
+    search: (query: string): Promise<JobOfferResponse[]> =>
+        request(`${BASE_URL}/offers/search?query=${encodeURIComponent(query)}`, {
+            method: "GET",
+        }),
+
     create: (data: {
         title: string;
         company: string;
@@ -85,7 +95,14 @@ export const OffersAPI = {
         request(`${BASE_URL}/offers/transparent`, {
             method: "GET",
         }),
+
+    report: (data: { url: string; commentaire: string }): Promise<void> =>
+        request(`${BASE_URL}/offers/report`, {
+            method: "POST",
+            body: JSON.stringify(data),
+        }),
 };
+
 
 // -----------------------------
 // USER CONTROLLER (/api/users)

@@ -1,30 +1,24 @@
-import SearchBar from "../components/molecules/SearchBar";
-import AnnonceList from "../components/organisms/AnnonceList";
-
-interface HomeTemplateProps {
-    searchValue: string;
-    onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onSearch: () => void;
-}
-
-export default function HomeTemplate({
-    searchValue,
-    onSearchChange,
-    onSearch,
-}: HomeTemplateProps) {
+export default function HomeTemplate() {
     return (
-        <div className="max-w-5xl mx-auto py-10 px-4">
-            <h1 className="text-2xl font-bold mb-6">Rechercher une annonce</h1>
+        <section
+            aria-labelledby="home-title"
+            className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8 text-center"
+        >
+            <h1
+                id="home-title"
+                className="text-4xl font-bold mb-6 text-gray-900"
+            >
+                Bienvenue sur TransparEmploi
+            </h1>
 
-            <SearchBar
-                value={searchValue}
-                onChange={onSearchChange}
-                onSearch={onSearch}
-            />
+            <p className="text-lg text-gray-700 leading-relaxed max-w-2xl mx-auto">
+                Découvrez des offres d’emploi vérifiées, transparentes et fiables.
+                Notre mission : vous aider à trouver un emploi en toute confiance.
+            </p>
 
-            <div className="mt-10">
-                <AnnonceList />
-            </div>
-        </div>
+            <p className="mt-6 text-gray-600">
+                Utilisez le menu pour parcourir les annonces ou signaler une offre.
+            </p>
+        </section>
     );
 }

@@ -1,33 +1,37 @@
-import { useEffect, useState } from "react";
+import AnnonceCard from "../molecules/AnnonceCard";
 import type { JobOfferResponse } from "../../types/JobOffer";
-import { OffersAPI } from "../../services/api";
-import OfferCard from "../molecules/AnnonceCard";
 
+interface AnnonceListProps {
+    offers: JobOfferResponse[];
+}
 
-export default function OfferList() {
-    const [offers, setOffers] = useState<JobOfferResponse[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        OffersAPI.getAll().then((data) => {
-            setOffers(data);
-            setLoading(false);
-        });
-    }, []);
-
-    if (loading) {
-        return <p className="text-center py-10">Chargement des offres...</p>;
-    }
-
-    if (offers.length === 0) {
-        return <p className="text-center py-10">Aucune offre trouvée.</p>;
+export default function AnnonceList({ offers }: AnnonceListProps) {
+    if (!offers || offers.length === 0) {
+        return (
+            <p
+                role="status"
+                className="text-center py-10 text-gray-700 text-sm sm:text-base"
+            >
+                Aucune annonce trouvée.
+            </p>
+        );
     }
 
     return (
-        <div className="grid gap-4">
+        <ul
+            aria-label="Liste des annonces"
+            className="
+                grid
+                gap-4
+                sm:grid-cols-2
+                lg:grid-cols-3
+            "
+        >
             {offers.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} />
+                <li key={offer.id}>
+                    <AnnonceCard offer={offer} />
+                </li>
             ))}
-        </div>
+        </ul>
     );
 }

@@ -3,14 +3,28 @@ import Footer from "../components/organisms/Footer";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
     return (
-        <>
-            <Navbar />
+        <div className="min-h-screen flex flex-col bg-gray-50">
+            {/* Header */}
+            <header>
+                <Navbar />
+            </header>
 
-            <main className="min-h-screen px-4 py-6">
+            {/* Main content */}
+            <main
+                className="
+          flex-1
+          px-4 sm:px-6 lg:px-8
+          py-6 sm:py-8
+        "
+                role="main"
+            >
                 {children}
             </main>
 
-            <Footer />
-        </>
+            {/* Footer */}
+            <footer>
+                <Footer />
+            </footer>
+        </div>
     );
 }
